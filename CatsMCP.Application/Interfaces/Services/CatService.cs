@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CatsMCP;
+namespace CatsMCP.Application.Services;
 
 public class CatService
 {
@@ -21,18 +21,16 @@ public class CatService
         var response = await httpClient.GetAsync("http://localhost:8088/felinos.json");
         if (response.IsSuccessStatusCode)
         {
-            catList = await response.Content.ReadFromJsonAsync(CatContext.Default.ListCat) ?? [];
+            catList = await response.Content.ReadFromJsonAsync(CatContext.Default.ListCat) ?? new List<Cat>();
         }
-
-        catList ??= [];
 
         return catList;
     }
 
     public async Task<Cat?> GetCat(string name)
     {
-        var monkeys = await GetCats();
-        return monkeys.FirstOrDefault(m => m.Nombre?.Equals(name, StringComparison.OrdinalIgnoreCase) == true);
+        var cats = await GetCats();
+        return cats.FirstOrDefault(m => m.Nombre?.Equals(name, StringComparison.OrdinalIgnoreCase) == true);
     }
 }
 

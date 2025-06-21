@@ -1,13 +1,9 @@
-﻿using ModelContextProtocol.Server;
-using System;
-using System.Collections.Generic;
+﻿using CatsMCP.Application.Services;
+using ModelContextProtocol.Server;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace CatsMCP;
+namespace CatsMCP.WebApi;
 
 [McpServerToolType]
 public static class CatTools

@@ -17,4 +17,8 @@
     <Folder Include="Data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CatsMCP.Application\CatsMCP.Application.csproj" />
+  </ItemGroup>
+
 </Project>
