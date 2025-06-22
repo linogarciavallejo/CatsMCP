@@ -3,11 +3,11 @@ using CatsMCP.Domain.Entities;
 
 namespace CatsMCP.Application.Services;
 
-public class CatService : ICatService
+public class CatServiceEn : ICatService
 {
-    private readonly ICatRepository repository;
+    private readonly ICatRepositoryEn repository;
 
-    public CatService(ICatRepository repository)
+    public CatServiceEn(ICatRepositoryEn repository)
     {
         this.repository = repository;
     }

@@ -11,14 +11,21 @@ public class CatDbContext : DbContext
     }
 
     public DbSet<Cat> Cats => Set<Cat>();
+    public DbSet<CatEn> CatsEn => Set<CatEn>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var converter = new ValueConverter<float[]?, string?>(
-            v => v == null ? null : string.Join(",", v),
+            v => v == null ? null : string.Join(',', v),
             v => string.IsNullOrEmpty(v) ? null : ParseFloatArray(v));
 
         modelBuilder.Entity<Cat>()
+            .ToTable("Cats")
+            .Property(e => e.EmbeddingVector)
+            .HasConversion(converter);
+
+        modelBuilder.Entity<CatEn>()
+            .ToTable("Cats_EN")
             .Property(e => e.EmbeddingVector)
             .HasConversion(converter);
     }
