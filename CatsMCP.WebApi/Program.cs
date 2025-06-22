@@ -1,10 +1,10 @@
-using CatsMCP;
 using CatsMCP.Application.Services;
+using CatsMCP.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using System.ComponentModel;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -15,8 +15,9 @@ builder.Logging.AddConsole(consoleLogOptions =>
 });
 
 builder.Services
-    .AddHttpClient()
-    .AddSingleton<CatService>();
+    .AddDbContext<CatDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Default")))
+    .AddScoped<CatService>();
 
 builder.Services
     .AddMcpServer()
