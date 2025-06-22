@@ -11,6 +11,7 @@ public class CatDbContext : DbContext
     }
 
     public DbSet<Cat> Cats => Set<Cat>();
+    public DbSet<CatEn> CatsEn => Set<CatEn>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +20,12 @@ public class CatDbContext : DbContext
             v => string.IsNullOrEmpty(v) ? null : v.Split(',').Select(float.Parse).ToArray());
 
         modelBuilder.Entity<Cat>()
+            .ToTable("Cats")
+            .Property(e => e.EmbeddingVector)
+            .HasConversion(converter);
+
+        modelBuilder.Entity<CatEn>()
+            .ToTable("Cats_EN")
             .Property(e => e.EmbeddingVector)
             .HasConversion(converter);
     }

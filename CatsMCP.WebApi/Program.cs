@@ -17,9 +17,23 @@ builder.Logging.AddConsole(consoleLogOptions =>
 
 builder.Services
     .AddDbContext<CatDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("Default")))
-    .AddScoped<ICatRepository, CatRepository>()
-    .AddScoped<CatService>();
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+var language = builder.Configuration["Language"]?.ToLower() ?? "es";
+if (language == "en")
+{
+    builder.Services
+        .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
+        .AddScoped<CatServiceEn>()
+        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatServiceEn>());
+}
+else
+{
+    builder.Services
+        .AddScoped<ICatRepository, CatRepository>()
+        .AddScoped<CatService>()
+        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatService>());
+}
 
 builder.Services
     .AddMcpServer()
