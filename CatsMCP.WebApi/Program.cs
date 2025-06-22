@@ -1,10 +1,11 @@
-using CatsMCP;
 using CatsMCP.Application.Services;
+using CatsMCP.Application.Interfaces.Repositories;
+using CatsMCP.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using System.ComponentModel;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -15,8 +16,24 @@ builder.Logging.AddConsole(consoleLogOptions =>
 });
 
 builder.Services
-    .AddHttpClient()
-    .AddSingleton<CatService>();
+    .AddDbContext<CatDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+var language = builder.Configuration["Language"]?.ToLower() ?? "es";
+if (language == "en")
+{
+    builder.Services
+        .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
+        .AddScoped<CatServiceEn>()
+        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatServiceEn>());
+}
+else
+{
+    builder.Services
+        .AddScoped<ICatRepository, CatRepository>()
+        .AddScoped<CatService>()
+        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatService>());
+}
 
 builder.Services
     .AddMcpServer()
