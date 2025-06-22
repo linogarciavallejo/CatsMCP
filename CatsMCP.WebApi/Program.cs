@@ -1,4 +1,5 @@
 using CatsMCP.Application.Services;
+using CatsMCP.Application.Interfaces.Repositories;
 using CatsMCP.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ builder.Logging.AddConsole(consoleLogOptions =>
 builder.Services
     .AddDbContext<CatDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("Default")))
+    .AddScoped<ICatRepository, CatRepository>()
     .AddScoped<CatService>();
 
 builder.Services

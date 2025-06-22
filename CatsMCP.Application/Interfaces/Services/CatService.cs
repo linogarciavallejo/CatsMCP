@@ -1,27 +1,24 @@
-using CatsMCP.Infrastructure.Entities;
-using CatsMCP.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+using CatsMCP.Application.Interfaces.Repositories;
+using CatsMCP.Domain.Entities;
 
 namespace CatsMCP.Application.Services;
 
 public class CatService
 {
-    private readonly CatDbContext dbContext;
+    private readonly ICatRepository repository;
 
-    public CatService(CatDbContext dbContext)
+    public CatService(ICatRepository repository)
     {
-        this.dbContext = dbContext;
+        this.repository = repository;
     }
 
     public Task<List<Cat>> GetCats()
     {
-        return dbContext.Cats.AsNoTracking().ToListAsync();
+        return repository.GetCats();
     }
 
     public Task<Cat?> GetCat(string name)
     {
-        return dbContext.Cats.AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Nombre != null &&
-                c.Nombre.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return repository.GetCat(name);
     }
 }

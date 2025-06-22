@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CatsMCP.Infrastructure.Entities;
+namespace CatsMCP.Domain.Entities;
 
 public class Cat
 {

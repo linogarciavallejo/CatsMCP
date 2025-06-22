@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CatsMCP.Infrastructure\CatsMCP.Infrastructure.csproj" />
+    <ProjectReference Include="..\CatsMCP.Domain\CatsMCP.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-using CatsMCP.Infrastructure.Entities;
+using CatsMCP.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
