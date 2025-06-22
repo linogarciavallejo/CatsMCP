@@ -15,11 +15,16 @@ public class CatDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var converter = new ValueConverter<float[]?, string?>(
-            v => v == null ? null : string.Join(',', v),
-            v => string.IsNullOrEmpty(v) ? null : v.Split(',').Select(float.Parse).ToArray());
+            v => v == null ? null : string.Join(",", v),
+            v => string.IsNullOrEmpty(v) ? null : ParseFloatArray(v));
 
         modelBuilder.Entity<Cat>()
             .Property(e => e.EmbeddingVector)
             .HasConversion(converter);
+    }
+
+    private static float[]? ParseFloatArray(string value)
+    {
+        return value.Split(',').Select(float.Parse).ToArray();
     }
 }
