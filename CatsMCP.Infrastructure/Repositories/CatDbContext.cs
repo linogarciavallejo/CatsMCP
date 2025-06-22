@@ -17,7 +17,7 @@ public class CatDbContext : DbContext
     {
         var converter = new ValueConverter<float[]?, string?>(
             v => v == null ? null : string.Join(',', v),
-            v => string.IsNullOrEmpty(v) ? null : v.Split(',').Select(float.Parse).ToArray());
+            v => string.IsNullOrEmpty(v) ? null : ParseFloatArray(v));
 
         modelBuilder.Entity<Cat>()
             .ToTable("Cats")
@@ -28,5 +28,10 @@ public class CatDbContext : DbContext
             .ToTable("Cats_EN")
             .Property(e => e.EmbeddingVector)
             .HasConversion(converter);
+    }
+
+    private static float[]? ParseFloatArray(string value)
+    {
+        return value.Split(',').Select(float.Parse).ToArray();
     }
 }
