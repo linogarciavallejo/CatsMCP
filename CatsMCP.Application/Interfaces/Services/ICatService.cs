@@ -1,7 +1,7 @@
 namespace CatsMCP.Application.Services;
 
-public interface ICatService
+public interface ICatService<out T>
 {
-    Task<List<object>> GetCats();
-    Task<object?> GetCat(string name);
+    Task<List<T>> GetCats();
+    Task<T?> GetCat(string name);
 }

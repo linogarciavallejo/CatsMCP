@@ -9,14 +9,14 @@ namespace CatsMCP.WebApi;
 public static class CatTools
 {
     [McpServerTool, Description("Get a list of cats.")]
-    public static async Task<string> GetCats(ICatService catService)
+    public static async Task<string> GetCats(ICatService<object> catService)
     {
         var cats = await catService.GetCats();
         return JsonSerializer.Serialize(cats);
     }
 
     [McpServerTool, Description("Get a cat by name.")]
-    public static async Task<string> GetCat(ICatService catService, [Description("The name of the cat to get details for")] string name)
+    public static async Task<string> GetCat(ICatService<object> catService, [Description("The name of the cat to get details for")] string name)
     {
         var cat = await catService.GetCat(name);
         return JsonSerializer.Serialize(cat);

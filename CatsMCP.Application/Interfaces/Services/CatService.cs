@@ -3,7 +3,7 @@ using CatsMCP.Domain.Entities;
 
 namespace CatsMCP.Application.Services;
 
-public class CatService : ICatService
+public class CatService : ICatService<Cat>
 {
     private readonly ICatRepository repository;
 
@@ -12,14 +12,13 @@ public class CatService : ICatService
         this.repository = repository;
     }
 
-    public async Task<List<object>> GetCats()
+    public Task<List<Cat>> GetCats()
     {
-        var result = await repository.GetCats();
-        return result.Cast<object>().ToList();
+        return repository.GetCats();
     }
 
-    public async Task<object?> GetCat(string name)
+    public Task<Cat?> GetCat(string name)
     {
-        return await repository.GetCat(name);
+        return repository.GetCat(name);
     }
 }
