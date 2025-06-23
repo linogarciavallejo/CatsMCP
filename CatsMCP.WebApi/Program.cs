@@ -1,6 +1,7 @@
 using CatsMCP.Application.Services;
 using CatsMCP.Application.Interfaces.Repositories;
 using CatsMCP.Infrastructure.Repositories;
+using CatsMCP.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,15 +25,15 @@ if (language == "en")
 {
     builder.Services
         .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
-        .AddScoped<CatServiceEn>()
-        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatServiceEn>());
+        .AddScoped<ICatService<CatEn>, CatServiceEn>()
+        .AddScoped<ICatService<object>>(sp => sp.GetRequiredService<ICatService<CatEn>>());
 }
 else
 {
     builder.Services
         .AddScoped<ICatRepository, CatRepository>()
-        .AddScoped<CatService>()
-        .AddScoped<ICatService>(sp => sp.GetRequiredService<CatService>());
+        .AddScoped<ICatService<Cat>, CatService>()
+        .AddScoped<ICatService<object>>(sp => sp.GetRequiredService<ICatService<Cat>>());
 }
 
 builder.Services
