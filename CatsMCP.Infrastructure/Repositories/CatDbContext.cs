@@ -1,6 +1,7 @@
 using CatsMCP.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Globalization;
 
 namespace CatsMCP.Infrastructure.Repositories;
 
@@ -16,7 +17,7 @@ public class CatDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var converter = new ValueConverter<float[]?, string?>(
-            v => v == null ? null : string.Join(',', v),
+            v => v == null ? null : string.Join(',', v.Select(f => f.ToString(CultureInfo.InvariantCulture))),
             v => string.IsNullOrEmpty(v) ? null : ParseFloatArray(v));
 
         modelBuilder.Entity<Cat>()
@@ -32,6 +33,6 @@ public class CatDbContext : DbContext
 
     private static float[]? ParseFloatArray(string value)
     {
-        return value.Split(',').Select(float.Parse).ToArray();
+        return value.Split(',').Select(v => float.Parse(v, CultureInfo.InvariantCulture)).ToArray();
     }
 }
