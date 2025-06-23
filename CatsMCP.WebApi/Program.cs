@@ -26,14 +26,14 @@ if (language == "en")
     builder.Services
         .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
         .AddScoped<ICatService<CatEn>, CatServiceEn>()
-        .AddScoped<ICatService<object>>(sp => sp.GetRequiredService<ICatService<CatEn>>());
+        .AddScoped<ICatService<object>>(sp => (ICatService<object>)sp.GetRequiredService<ICatService<CatEn>>());
 }
 else
 {
     builder.Services
         .AddScoped<ICatRepository, CatRepository>()
         .AddScoped<ICatService<Cat>, CatService>()
-        .AddScoped<ICatService<object>>(sp => sp.GetRequiredService<ICatService<Cat>>());
+        .AddScoped<ICatService<object>>(sp => (ICatService<object>)sp.GetRequiredService<ICatService<Cat>>());
 }
 
 builder.Services
