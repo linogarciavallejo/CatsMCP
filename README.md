@@ -83,10 +83,27 @@ cd CatsMCP
 dotnet restore
 ```
 
-### 3. Update Database
+### 3. Create and Apply Database Migrations
 
 ```bash
+# Install EF Core tools (if not already installed)
+dotnet tool install --global dotnet-ef
+
+# Create initial migration
+dotnet ef migrations add InitialCreate --project CatsMCP.Infrastructure --startup-project CatsMCP.WebApi
+
+# Apply migrations to create database
 dotnet ef database update --project CatsMCP.Infrastructure --startup-project CatsMCP.WebApi
+```
+
+**Alternative: Use Helper Scripts**
+```bash
+# PowerShell (recommended)
+.\CatsMCP.Infrastructure\scripts\migration-helper.ps1
+Initialize-Database
+
+# Or Windows Command Prompt
+.\CatsMCP.Infrastructure\scripts\migration-helper.bat
 ```
 
 ### 4. Seed Data (Optional)
@@ -191,8 +208,16 @@ The application supports two entity models with the following key properties:
 
 3. **Update Database Schema**:
    ```bash
+   # Create a new migration
    dotnet ef migrations add <MigrationName> --project CatsMCP.Infrastructure --startup-project CatsMCP.WebApi
+   
+   # Apply migrations
    dotnet ef database update --project CatsMCP.Infrastructure --startup-project CatsMCP.WebApi
+   
+   # Or use helper scripts
+   .\CatsMCP.Infrastructure\scripts\migration-helper.ps1
+   New-Migration "YourMigrationName"
+   Update-Database
    ```
 
 ## 🤝 Contributing
