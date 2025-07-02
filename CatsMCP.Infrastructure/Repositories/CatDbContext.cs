@@ -33,6 +33,32 @@ public class CatDbContext : DbContext
 
     private static float[]? ParseFloatArray(string value)
     {
-        return value.Split(',').Select(v => float.Parse(v, CultureInfo.InvariantCulture)).ToArray();
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+            
+        try
+        {
+            // Clean the string - remove brackets and extra whitespace
+            var cleanValue = value.Trim().Trim('[', ']');
+            
+            if (string.IsNullOrWhiteSpace(cleanValue))
+                return new float[0];
+                
+            return cleanValue
+                .Split(',')
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .Select(v => {
+                    var trimmed = v.Trim();
+                    if (float.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+                        return result;
+                    return 0f; // Default value for malformed entries
+                })
+                .ToArray();
+        }
+        catch
+        {
+            // Return empty array if parsing completely fails
+            return new float[0];
+        }
     }
 }

@@ -12,9 +12,10 @@ public class CatService : ICatService<Cat>
         this.repository = repository;
     }
 
-    public Task<List<Cat>> GetCats()
+    public async Task<IEnumerable<Cat>> GetCats()
     {
-        return repository.GetCats();
+        var cats = await repository.GetCats();
+        return cats;
     }
 
     public Task<Cat?> GetCat(string name)

@@ -22,6 +22,6 @@ public class CatRepository : ICatRepository
     {
         return dbContext.Cats.AsNoTracking()
             .FirstOrDefaultAsync(c => c.Nombre != null &&
-                c.Nombre.Equals(name, StringComparison.OrdinalIgnoreCase));
+                c.Nombre.ToLower() == name.ToLower());
     }
 }
