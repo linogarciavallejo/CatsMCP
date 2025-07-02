@@ -404,3 +404,17 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/debug-input.json
+/REACT_CLIENT_INTEGRATION.md
+/test-mcp-all.ps1
+/test-mcp-basic.ps1
+/test-mcp-clean.ps1
+/test-mcp-debug.ps1
+/test-mcp-echo.ps1
+/test-mcp-final.ps1
+/test-mcp-response.ps1
+/test-mcp-simple.bat
+/test-mcp-simple.ps1
+/test-mcp.bat
+/test-websocket.html
+/CatsMCP.WebApi/test-mcp-direct.ps1
