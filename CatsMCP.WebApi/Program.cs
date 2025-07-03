@@ -112,16 +112,42 @@ async Task RunHttpServer(string[] args)
     });
 
     // HTTP endpoints for direct API access
-    app.MapGet("/api/cats", async (IMcpCatService catService) =>
+    app.MapGet("/api/cats", async (string? language, IServiceProvider serviceProvider) =>
     {
-        var cats = await catService.GetCats();
-        return Results.Json(cats);
+        language ??= "en";
+        using var scope = serviceProvider.CreateScope();
+        
+        if (language.ToLower() == "es")
+        {
+            var catService = scope.ServiceProvider.GetRequiredService<ICatService<Cat>>();
+            var cats = await catService.GetCats();
+            return Results.Json(cats);
+        }
+        else
+        {
+            var catServiceEn = scope.ServiceProvider.GetRequiredService<ICatService<CatEn>>();
+            var cats = await catServiceEn.GetCats();
+            return Results.Json(cats);
+        }
     });
 
-    app.MapGet("/api/cats/{name}", async (string name, IMcpCatService catService) =>
+    app.MapGet("/api/cats/{name}", async (string name, string? language, IServiceProvider serviceProvider) =>
     {
-        var cat = await catService.GetCat(name);
-        return cat != null ? Results.Json(cat) : Results.NotFound();
+        language ??= "en";
+        using var scope = serviceProvider.CreateScope();
+        
+        if (language.ToLower() == "es")
+        {
+            var catService = scope.ServiceProvider.GetRequiredService<ICatService<Cat>>();
+            var cat = await catService.GetCat(name);
+            return cat != null ? Results.Json(cat) : Results.NotFound();
+        }
+        else
+        {
+            var catServiceEn = scope.ServiceProvider.GetRequiredService<ICatService<CatEn>>();
+            var cat = await catServiceEn.GetCat(name);
+            return cat != null ? Results.Json(cat) : Results.NotFound();
+        }
     });
 
     // MCP tools info endpoint
@@ -134,21 +160,67 @@ async Task RunHttpServer(string[] args)
                 new
                 {
                     name = "GetCats",
-                    description = "Get a list of cats",
-                    inputSchema = new { type = "object", properties = new { } }
+                    description = "Get a list of cats with language support",
+                    inputSchema = new 
+                    { 
+                        type = "object", 
+                        properties = new 
+                        {
+                            language = new 
+                            { 
+                                type = "string", 
+                                description = "Language preference: 'en' for English, 'es' for Spanish (default: 'en')",
+                                @default = "en"
+                            }
+                        }
+                    }
                 },
                 new
                 {
                     name = "GetCat",
-                    description = "Get a cat by name",
+                    description = "Get a cat by name with language support",
                     inputSchema = new
                     {
                         type = "object",
                         properties = new
                         {
-                            name = new { type = "string", description = "The name of the cat to get details for" }
+                            name = new { type = "string", description = "The name of the cat to get details for" },
+                            language = new 
+                            { 
+                                type = "string", 
+                                description = "Language preference: 'en' for English, 'es' for Spanish (default: 'en')",
+                                @default = "en"
+                            }
                         },
                         required = new[] { "name" }
+                    }
+                },
+                new
+                {
+                    name = "Echo",
+                    description = "Echo a message back to test the MCP connection",
+                    inputSchema = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            message = new { type = "string", description = "The message to echo back" }
+                        },
+                        required = new[] { "message" }
+                    }
+                },
+                new
+                {
+                    name = "ReverseEcho",
+                    description = "Reverse echo a message back to test the MCP connection",
+                    inputSchema = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            message = new { type = "string", description = "The message to reverse and echo back" }
+                        },
+                        required = new[] { "message" }
                     }
                 }
             }
@@ -218,7 +290,7 @@ async Task<string> ProcessMcpMessage(string message, IServiceProvider servicePro
         return method switch
         {
             "tools/list" => await HandleToolsList(id),
-            "tools/call" => await HandleToolsCall(root, id, catService),
+            "tools/call" => await HandleToolsCall(root, id, serviceProvider),
             _ => CreateErrorResponse(root, -32601, "Method not found")
         };
     }
@@ -235,21 +307,67 @@ Task<string> HandleToolsList(int id)
         new
         {
             name = "GetCats",
-            description = "Get a list of cats.",
-            inputSchema = new { type = "object", properties = new { } }
+            description = "Get a list of cats with language support.",
+            inputSchema = new 
+            { 
+                type = "object", 
+                properties = new 
+                {
+                    language = new 
+                    { 
+                        type = "string", 
+                        description = "Language preference: 'en' for English, 'es' for Spanish (default: 'en')",
+                        @default = "en"
+                    }
+                }
+            }
         },
         new
         {
             name = "GetCat",
-            description = "Get a cat by name.",
+            description = "Get a cat by name with language support.",
             inputSchema = new
             {
                 type = "object",
                 properties = new
                 {
-                    name = new { type = "string", description = "The name of the cat to get details for" }
+                    name = new { type = "string", description = "The name of the cat to get details for" },
+                    language = new 
+                    { 
+                        type = "string", 
+                        description = "Language preference: 'en' for English, 'es' for Spanish (default: 'en')",
+                        @default = "en"
+                    }
                 },
                 required = new[] { "name" }
+            }
+        },
+        new
+        {
+            name = "Echo",
+            description = "Echo a message back to test the MCP connection.",
+            inputSchema = new
+            {
+                type = "object",
+                properties = new
+                {
+                    message = new { type = "string", description = "The message to echo back" }
+                },
+                required = new[] { "message" }
+            }
+        },
+        new
+        {
+            name = "ReverseEcho",
+            description = "Reverse echo a message back to test the MCP connection.",
+            inputSchema = new
+            {
+                type = "object",
+                properties = new
+                {
+                    message = new { type = "string", description = "The message to reverse and echo back" }
+                },
+                required = new[] { "message" }
             }
         }
     };
@@ -262,7 +380,7 @@ Task<string> HandleToolsList(int id)
     }));
 }
 
-async Task<string> HandleToolsCall(JsonElement root, int id, IMcpCatService catService)
+async Task<string> HandleToolsCall(JsonElement root, int id, IServiceProvider serviceProvider)
 {
     if (!root.TryGetProperty("params", out var paramsElement) ||
         !paramsElement.TryGetProperty("name", out var nameElement))
@@ -277,8 +395,10 @@ async Task<string> HandleToolsCall(JsonElement root, int id, IMcpCatService catS
     {
         string result = toolName switch
         {
-            "GetCats" => await GetCatsResult(catService),
-            "GetCat" => await GetCatResult(catService, arguments),
+            "GetCats" => await GetCatsResult(arguments, serviceProvider),
+            "GetCat" => await GetCatResult(arguments, serviceProvider),
+            "Echo" => await EchoResult(arguments),
+            "ReverseEcho" => await ReverseEchoResult(arguments),
             _ => throw new InvalidOperationException($"Unknown tool: {toolName}")
         };
         
@@ -305,20 +425,76 @@ async Task<string> HandleToolsCall(JsonElement root, int id, IMcpCatService catS
     }
 }
 
-async Task<string> GetCatsResult(IMcpCatService catService)
+async Task<string> GetCatsResult(JsonElement arguments, IServiceProvider serviceProvider)
 {
-    var cats = await catService.GetCats();
-    return JsonSerializer.Serialize(cats);
+    var language = "en"; // default
+    if (arguments.TryGetProperty("language", out var langElement))
+    {
+        language = langElement.GetString() ?? "en";
+    }
+    
+    using var scope = serviceProvider.CreateScope();
+    
+    if (language.ToLower() == "es")
+    {
+        var catService = scope.ServiceProvider.GetRequiredService<ICatService<Cat>>();
+        var cats = await catService.GetCats();
+        return JsonSerializer.Serialize(cats);
+    }
+    else
+    {
+        var catServiceEn = scope.ServiceProvider.GetRequiredService<ICatService<CatEn>>();
+        var cats = await catServiceEn.GetCats();
+        return JsonSerializer.Serialize(cats);
+    }
 }
 
-async Task<string> GetCatResult(IMcpCatService catService, JsonElement arguments)
+async Task<string> GetCatResult(JsonElement arguments, IServiceProvider serviceProvider)
 {
     if (!arguments.TryGetProperty("name", out var nameElement))
         throw new ArgumentException("Missing 'name' argument");
         
     var name = nameElement.GetString() ?? throw new ArgumentException("Invalid 'name' argument");
-    var cat = await catService.GetCat(name);
-    return JsonSerializer.Serialize(cat);
+    
+    var language = "en"; // default
+    if (arguments.TryGetProperty("language", out var langElement))
+    {
+        language = langElement.GetString() ?? "en";
+    }
+    
+    using var scope = serviceProvider.CreateScope();
+    
+    if (language.ToLower() == "es")
+    {
+        var catService = scope.ServiceProvider.GetRequiredService<ICatService<Cat>>();
+        var cat = await catService.GetCat(name);
+        return JsonSerializer.Serialize(cat);
+    }
+    else
+    {
+        var catServiceEn = scope.ServiceProvider.GetRequiredService<ICatService<CatEn>>();
+        var cat = await catServiceEn.GetCat(name);
+        return JsonSerializer.Serialize(cat);
+    }
+}
+
+async Task<string> EchoResult(JsonElement arguments)
+{
+    if (!arguments.TryGetProperty("message", out var messageElement))
+        throw new ArgumentException("Missing 'message' argument");
+        
+    var message = messageElement.GetString() ?? throw new ArgumentException("Invalid 'message' argument");
+    return $"Echo: {message}";
+}
+
+async Task<string> ReverseEchoResult(JsonElement arguments)
+{
+    if (!arguments.TryGetProperty("message", out var messageElement))
+        throw new ArgumentException("Missing 'message' argument");
+        
+    var message = messageElement.GetString() ?? throw new ArgumentException("Invalid 'message' argument");
+    var reversed = new string(message.Reverse().ToArray());
+    return $"Reverse Echo: {reversed}";
 }
 
 string CreateErrorResponse(JsonElement request, int code, string message)
@@ -339,19 +515,27 @@ string CreateErrorResponse(JsonElement request, int code, string message)
 
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    // Register both Spanish and English services regardless of language setting
+    // This allows the MCP tools to choose the appropriate service at runtime
+    
+    // Spanish services
+    services
+        .AddScoped<ICatRepository, CatRepository>()
+        .AddScoped<ICatService<Cat>, CatService>();
+        
+    // English services  
+    services
+        .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
+        .AddScoped<ICatService<CatEn>, CatServiceEn>();
+        
+    // For backward compatibility, also register the wrapper services
     var language = configuration["Language"]?.ToLower() ?? "es";
     if (language == "en")
     {
-        services
-            .AddScoped<ICatRepositoryEn, CatRepositoryEn>()
-            .AddScoped<ICatService<CatEn>, CatServiceEn>()
-            .AddScoped<IMcpCatService, McpCatServiceEn>();
+        services.AddScoped<IMcpCatService, McpCatServiceEn>();
     }
     else
     {
-        services
-            .AddScoped<ICatRepository, CatRepository>()
-            .AddScoped<ICatService<Cat>, CatService>()
-            .AddScoped<IMcpCatService, McpCatService>();
+        services.AddScoped<IMcpCatService, McpCatService>();
     }
 }
